@@ -1,2 +1,105 @@
-# Mini Projeto de Análise de Dados
-Atividade avaliativa em Python utilizando Pandas e visualização de dados.
+# 🛍️ Análise Exploratória de Dados — Rede de Varejo
+
+Projeto de **Análise Exploratória de Dados (AED)** aplicado a uma base real de vendas de uma rede de varejo, com foco em limpeza, padronização, enriquecimento (feature engineering) e identificação de padrões de compra.
+
+## 📋 Sobre o projeto
+
+A base contém registros de compras realizadas em uma rede varejista, incluindo informações de data, cliente, produto e categoria. O projeto percorre um fluxo completo de AED: inspeção inicial, tratamento de dados nulos/inconsistentes, criação de variáveis derivadas e análise estatística e visual, com o objetivo de deixar a base pronta para análises mais aprofundadas ou para alimentar dashboards.
+
+## 🎯 Objetivos
+
+- Realizar uma AED completa da base de vendas.
+- Identificar e tratar valores nulos, duplicados e inconsistentes.
+- Padronizar tipos de dados (datas, texto, categorias).
+- Gerar estatísticas descritivas e visualizações que revelem padrões de comportamento de compra.
+- Documentar decisões de tratamento de dados de forma justificada (ex.: exclusão vs. imputação).
+
+## 🛠️ Tecnologias utilizadas
+
+| Ferramenta | Uso |
+|---|---|
+| Python 3.13 | Linguagem principal |
+| Pandas / NumPy | Manipulação e cálculo de dados |
+| Matplotlib / Seaborn | Visualização de dados |
+| Jupyter Notebook | Ambiente de desenvolvimento |
+| VS Code | Editor de código |
+
+## 📊 Dicionário de dados
+
+| Coluna | Descrição |
+|---|---|
+| `DATA` | Data da compra |
+| `CO_ID` | Identificação da compra (número da nota fiscal) |
+| `CL_ID` | Identificação do cliente |
+| `CL_GENERO` | Sexo biológico informado pelo cliente |
+| `CL_EC` | Estado civil (1=Casado/União estável, 2=Divorciado, 3=Separado, 4=Solteiro, 5=Viúvo) |
+| `CL_FHL` | Número de filhos do cliente |
+| `CL_SEG` | Segmentação econômica do cliente (A, B ou C) |
+| `PR_ID` | Código do produto (SKU) |
+| `PR_CAT` | Categoria do produto |
+| `PR_NOME` | Nome do produto |
+
+## 🔍 Metodologia
+
+O notebook segue uma estrutura sequencial de investigação, coluna a coluna:
+
+1. **Carregamento e inspeção inicial**
+   Leitura do CSV, identificação de 4 colunas vazias sem nome (`Unnamed: 10-13`) e remoção das mesmas, resultando em um dataset com 10 colunas e ~830 mil registros não nulos.
+
+2. **Tratamento da coluna `DATA`**
+   - Conversão de `str` para `datetime64`, com `errors='coerce'` para isolar datas corrompidas.
+   - Cálculo da janela temporal coberta pela base.
+   - Criação de variáveis derivadas: `ANO`, `MES`, `DIA_SEMANA`, `DIA_DO_MES` e `FIM_DE_SEMANA`.
+   - Análises de sazonalidade: volume de compras por dia do mês, média móvel de 7 dias e crescimento mês a mês (MoM).
+
+3. **Tratamento da coluna `CO_ID`**
+   - Verificação de nulos, zeros e IDs negativos.
+   - Cálculo de itens por compra (*basket size*) com histograma e boxplot para detecção de outliers.
+   - Teste de consistência temporal (garantindo que um mesmo `CO_ID` não aparece em datas diferentes).
+
+4. **Tratamento da coluna `PR_CAT`**
+   - Padronização de texto (maiúsculas, remoção de espaços).
+   - Identificação de 3.650 registros (0,44% da base) com valor `#N/D`.
+   - Teste de aleatoriedade (MCAR): comparação do tamanho médio da cesta em compras com e sem erro. Resultado: o erro **não é aleatório** — concentra-se em compras com poucos itens.
+   - Decisão: os registros não foram excluídos, e sim reclassificados como `DESCONHECIDO`, evitando viés na base.
+
+5. **Tratamento da coluna `CL_FHL`**
+   - Verificação de valores impossíveis (negativos ou acima de 15 filhos).
+   - Estatística descritiva (média, mediana, moda, desvio-padrão).
+   - Detecção de outliers pelo método IQR, com visualização em gráfico de barras e boxplot.
+
+## 📈 Principais insights
+
+- A base cobre um volume expressivo de dados (~830 mil registros), permitindo análises estatísticas consistentes.
+- O volume de vendas apresenta um padrão claro ao longo do mês, com pico entre os dias 3 e 5 e menor movimento nos dias 19 e 26.
+- O tamanho médio da cesta de compras é de aproximadamente 40 itens, com distribuição relativamente homogênea.
+- Os dados ausentes em `PR_CAT` (`#N/D`) não eram aleatórios: estavam associados a compras muito pequenas (~1 item), evidência que justificou a imputação em vez da exclusão.
+- A maioria dos clientes não possui filhos (moda = 0), com média de 1,15 filhos por cliente.
+
+## 📁 Estrutura do projeto
+
+```
+.
+├── mini_projeto_yuri_psybiowski_analise_de_dados_T6.ipynb   # Notebook com toda a análise
+├── Base_Varejo.csv                                          # Base de dados (não incluída neste repositório)
+└── README.md                                                # Este arquivo
+```
+
+## ▶️ Como executar
+
+1. Clone o repositório e certifique-se de que o arquivo `Base_Varejo.csv` esteja na mesma pasta do notebook.
+2. Crie um ambiente virtual e instale as dependências:
+   ```bash
+   pip install pandas numpy matplotlib seaborn jupyter
+   ```
+3. Abra o notebook `mini_projeto_yuri_psybiowski_analise_de_dados_T6.ipynb` no Jupyter ou VS Code e execute as células em ordem.
+
+## 🚀 Próximos passos
+
+- Aprofundar a análise da coluna `PR_CAT` cruzando com outras variáveis (segmentação, perfil de cliente).
+- Explorar padrões de compra por segmento econômico (`CL_SEG`) e estado civil (`CL_EC`).
+- Construir um dashboard interativo a partir da base tratada.
+
+## 👤 Autor
+
+Yuri Psybiowski — Mini Projeto SCTEC
